@@ -103,7 +103,8 @@ a { color: var(--pink-dark); }
   text-align: center; line-height: 1;
 }
 .pet-bob .hat-party { top: 2%; font-size: 64px; transform: translateX(-50%) rotate(-8deg); }
-.pet-bob .hat-shades { top: 44%; font-size: 88px; }
+.pet-bob .hat-shades { top: 40%; width: min(180px, 52%); }
+.pet-bob .hat-shades svg { width: 100%; height: auto; display: block; }
 .pet-bob .hat-crown { top: 0%; font-size: 60px; transform: translateX(-50%) rotate(8deg); }
 .pet-name { font-size: 1.8rem; font-weight: 900; margin: 10px 0 2px; }
 .pet-sub { opacity: .75; margin-bottom: 8px; }
