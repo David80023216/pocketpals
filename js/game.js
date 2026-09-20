@@ -71,6 +71,7 @@ const Game = (() => {
   const speciesOf = (pet) => PP.SPECIES[pet.species];
   const displayName = (pet) => pet.stage === "baby" ? speciesOf(pet).babyName : speciesOf(pet).adultName;
   const artFor = (pet) => `assets/pets/${pet.species}-${pet.stage}.webp`;
+  const videoFor = (pet) => `assets/pets/${pet.species}-${pet.stage}-idle.mp4`;
 
   function mood(pet) {
     const needs = [pet.hunger, pet.happiness, pet.energy];
@@ -266,7 +267,7 @@ const Game = (() => {
   const canAdoptMore = () => S.pets.length < S.maxPets;
 
   return {
-    state: () => S, save, tickAll, adopt, activePet, petById, speciesOf, displayName, artFor,
+    state: () => S, save, tickAll, adopt, activePet, petById, speciesOf, displayName, artFor, videoFor,
     mood, doAction, petPet, cooldownLeft, checkStreak, buyCoinItem, buyGemItem, removeHat,
     renamePet, addGems, switchPet, fmtTime, canAdoptMore, todayStr,
   };
