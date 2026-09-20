@@ -21,9 +21,18 @@ never random draws.
 | `js/game.js` | Engine: decay, actions, streaks, events, evolution |
 | `css/styles.css` | Pastel theme |
 | `assets/pets/` | 12 AI-generated pet portraits (6 babies + 6 adults) |
+| `friends.html` | Friends hub: friend codes, gifts, cheers, visits, leaderboard |
+| `js/cloud.js` | Firebase Auth + Firestore: sign-in, cloud saves, friends, inbox |
+| `js/nav-auth.js` | Sign-in button / player chip in the nav bar |
+| `js/firebase-config.js` | Paste your Firebase web keys here (see `FIREBASE_SETUP.md`) |
+| `firestore.rules` | Firestore security rules for the friends features |
+| `FIREBASE_SETUP.md` | Free ~10-min setup guide to switch on sign-in & friends |
 | `worker.js` / `wrangler.toml` | Cloudflare Worker: Stripe → single-use gem codes |
 
-Game state lives in the browser (`localStorage`) — no accounts, no server needed to play.
+Game state lives in the browser (`localStorage`) and plays fully offline — no
+accounts needed. Optionally, sign in with Google (Firebase, free) to cloud-save
+your pals across devices and play with friends. Until keys are pasted into
+`js/firebase-config.js`, the site simply runs in local-only mode.
 
 ## Deploy the site (free)
 

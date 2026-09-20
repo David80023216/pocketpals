@@ -15,6 +15,8 @@
   <a class="nlink" href="shop.html">Shop</a>
   <a class="nlink" href="store.html">💎 Store</a>
   <a class="nlink active" href="about.html">About</a>
+  <a class="nlink" href="friends.html">👥 Friends</a>
+  <span id="auth-slot"></span>
   <span class="wallet"><span class="pill" id="w-coins">🪙 0</span><span class="pill" id="w-gems">💎 0</span></span>
 </div></nav>
 
@@ -32,14 +34,21 @@
     <h2>Fair play</h2>
     <p>Everything in Pocket Pals is original — the pals, the art, the world. The full game is free; coins are earned by playing, and purchased gems unlock only guaranteed, non-random perks. Virtual items have no cash value.</p>
     <h2>Privacy</h2>
-    <p>Your game saves only in your own browser (localStorage). We don't run accounts or collect personal data. If you clear your browser data, your pals go with it — so visit often! 💕</p>
+    <h2>Privacy</h2>
+    <p>Your game saves in your own browser (localStorage) and plays fully offline. If you <b>sign in with Google</b>, your pals also sync to a secure cloud save so they follow you across devices, and you can add friends, send gifts, and appear on the friends leaderboard. We never sell data or show your info to anyone except players you add as friends. Signing in is always optional — if you clear your browser data without signing in, your pals go with it, so visit often! 💕</p>
   </div>
   <div class="ad-slot">Advertisement</div>
 </div>
 
 <footer><a href="index.html">Home</a> · <a href="store.html">Gem Store</a> · Made with 💕 by Pocket Pals</footer>
 <script src="js/data.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/cloud.js"></script>
 <script src="js/game.js"></script>
+<script src="js/nav-auth.js"></script>
 <script>
 Game.tickAll();
 const s=Game.state();

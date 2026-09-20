@@ -15,6 +15,8 @@
   <a class="nlink" href="shop.html">Shop</a>
   <a class="nlink" href="store.html">💎 Store</a>
   <a class="nlink" href="about.html">About</a>
+  <a class="nlink" href="friends.html">👥 Friends</a>
+  <span id="auth-slot"></span>
   <span class="wallet"><span class="pill" id="w-coins">🪙 0</span><span class="pill" id="w-gems">💎 0</span></span>
 </div></nav>
 
@@ -28,7 +30,13 @@
 <footer><a href="about.html">About</a> · <a href="store.html">Gem Store</a> · Made with 💕 by Pocket Pals</footer>
 
 <script src="js/data.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/cloud.js"></script>
 <script src="js/game.js"></script>
+<script src="js/nav-auth.js"></script>
 <script>
 const $=s=>document.querySelector(s);
 function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;$("#toasts").appendChild(t);setTimeout(()=>t.remove(),4200);}

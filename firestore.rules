@@ -1,0 +1,38 @@
+rules_version = '2';
+// Pocket Pals — Firestore security rules.
+// Paste into Firebase console: Build > Firestore Database > Rules > Publish.
+//
+// Model:
+// - users/{uid} ......... a player's profile + game save (readable by any
+//                         signed-in player so friends can visit/leaderboard;
+//                         writable only by its owner)
+// - users/{uid}/friends/.  the owner's friend list (owner only)
+// - users/{uid}/inbox/...  gifts & cheers SENT to this player:
+//                         anyone signed in may CREATE a well-formed gift/cheer,
+//                         but only the owner can read/claim/delete them.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{uid} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && request.auth.uid == uid;
+      allow delete: if false;
+
+      match /friends/{friendId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+
+      match /inbox/{itemId} {
+        allow read, update, delete: if request.auth != null && request.auth.uid == uid;
+        allow create: if request.auth != null
+          && request.resource.data.fromUid == request.auth.uid
+          && request.resource.data.keys().hasOnly(
+               ['type', 'fromUid', 'fromName', 'coins', 'createdAt', 'claimed'])
+          && request.resource.data.type in ['gift', 'cheer']
+          && request.resource.data.claimed == false
+          && request.resource.data.coins >= 0
+          && request.resource.data.coins <= 50;
+      }
+    }
+  }
+}

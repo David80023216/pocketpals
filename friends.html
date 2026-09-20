@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Friends — Pocket Pals</title>
+<meta name="description" content="Add friends, visit their pals, send gifts and climb the leaderboard.">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+  <a class="logo" href="index.html">🐾 Pocket <span>Pals</span></a>
+  <a class="nlink" href="play.html">Play</a>
+  <a class="nlink" href="collection.html">My Pals</a>
+  <a class="nlink" href="shop.html">Shop</a>
+  <a class="nlink" href="store.html">💎 Store</a>
+  <a class="nlink" href="about.html">About</a>
+  <a class="nlink active" href="friends.html">👥 Friends</a>
+  <span id="auth-slot"></span>
+  <span class="wallet"><span class="pill" id="w-coins">🪙 0</span><span class="pill" id="w-gems">💎 0</span></span>
+</div></nav>
+
+<div class="wrap">
+  <!-- Firebase not configured yet -->
+  <div id="fb-off" class="card" style="display:none;text-align:center">
+    <h2>👥 Friends are coming soon!</h2>
+    <p>Sign-in and friend features are built and ready — they just need the free backend switched on.</p>
+  </div>
+
+  <!-- Not signed in -->
+  <div id="fb-signin" class="card" style="display:none;text-align:center">
+    <h2>👥 Play with friends!</h2>
+    <p>Sign in to save your pals to the cloud, add friends with a friend code, visit their pals, send gifts, and climb the leaderboard.</p>
+    <button class="btn" id="big-signin">🔑 Sign in with Google</button>
+    <p style="opacity:.65;font-size:.9rem">Free · Your pals stay playable offline too.</p>
+  </div>
+
+  <!-- Signed in: main hub -->
+  <div id="fb-main" style="display:none">
+    <div class="card friend-me">
+      <div id="me-row"></div>
+      <div class="code-box">
+        <span>Your friend code:</span>
+        <b id="my-code">······</b>
+        <button class="btn small" id="copy-code">Copy</button>
+      </div>
+      <p class="friend-hint">Share your code with a friend — they enter it below to add you. 🤝</p>
+    </div>
+
+    <div class="card">
+      <h3>➕ Add a friend</h3>
+      <div class="add-row">
+        <input id="friend-code-input" class="text-input" maxlength="8" placeholder="Friend code (e.g. KX7Q2M)" autocapitalize="characters">
+        <button class="btn" id="add-friend-btn">Add</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>👥 My friends <span id="friend-count" class="count-pill"></span></h3>
+      <div id="friends-list"><p class="muted">Loading…</p></div>
+    </div>
+
+    <div class="card">
+      <h3>🏆 Leaderboard — total pet levels</h3>
+      <div id="leaderboard"><p class="muted">Loading…</p></div>
+    </div>
+  </div>
+
+  <!-- Visit a friend's pal -->
+  <div id="fb-visit" style="display:none">
+    <div class="card" style="text-align:center">
+      <a href="friends.html" class="back-link">← Back to friends</a>
+      <h2 id="visit-title">Visiting…</h2>
+      <div class="pet-stage"><div class="pet-bob">
+        <video class="pet" id="visit-video" autoplay loop muted playsinline></video>
+        <div class="hat" id="visit-hat" style="display:none"></div>
+      </div></div>
+      <div class="pet-name" id="visit-pet-name"></div>
+      <div class="pet-sub" id="visit-pet-sub"></div>
+      <div id="visit-needs" class="needs" style="max-width:420px;margin:12px auto"></div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px">
+        <button class="btn" id="visit-gift">🎁 Send 20 coins</button>
+        <button class="btn" id="visit-cheer">📣 Cheer them on</button>
+      </div>
+      <p class="friend-hint">Gifts cost 20 coins (3/day) · Cheers are free (1/friend/day) and give +10 happiness!</p>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+<footer><a href="about.html">About</a> · <a href="store.html">Gem Store</a> · Made with 💕 by Pocket Pals</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/cloud.js"></script>
+<script src="js/game.js"></script>
+<script src="js/nav-auth.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(msg){ const t=document.createElement("div"); t.className="toast"; t.textContent=msg; $("#toasts").appendChild(t); setTimeout(()=>t.remove(), 4200); }
+function refreshWallet(){ const s=Game.state(); $("#w-coins").textContent="🪙 "+s.coins; $("#w-gems").textContent="💎 "+s.gems; }
+
+function show(which){
+  ["fb-off","fb-signin","fb-main","fb-visit"].forEach(id => $("#"+id).style.display = id===which ? "block" : "none");
+}
+
+async function claimInboxQuiet(){
+  try {
+    const items = await Cloud.fetchInbox();
+    for (const it of items) {
+      await Cloud.claimItem(it);
+      if (it.type === "gift") toast(`🎁 Gift from ${it.fromName}: +${it.coins} coins!`);
+      else toast(`📣 ${it.fromName} cheered your pal on! (+10 happiness)`);
+    }
+    if (items.length) refreshWallet();
+  } catch (e) { /* offline — try next visit */ }
+}
+
+async function loadMain(){
+  refreshWallet();
+  const me = Cloud.currentUser();
+  const code = Cloud.myFriendCode();
+  const avatar = me.photoURL ? `<img class="auth-avatar big" src="${esc(me.photoURL)}" alt="">` : `<span class="auth-avatar big auth-avatar-fallback">👤</span>`;
+  $("#me-row").innerHTML = `${avatar}<div><div class="pet-name">${esc(me.displayName || "Player")}</div><div class="pet-sub">Level up together! 🌟</div></div>`;
+  $("#my-code").textContent = code || "······";
+  await claimInboxQuiet();
+
+  let friends = [];
+  try { friends = await Cloud.listFriends(); }
+  catch (e) { $("#friends-list").innerHTML = `<p class="muted">Couldn't load friends — check your connection.</p>`; }
+  $("#friend-count").textContent = friends.length || "";
+  if (!friends.length) {
+    $("#friends-list").innerHTML = `<p class="muted">No friends yet — share your code above to get started! 🐾</p>`;
+  } else {
+    $("#friends-list").innerHTML = friends.map(f => `
+      <div class="friend-row">
+        ${f.photoURL ? `<img class="auth-avatar" src="${esc(f.photoURL)}" alt="">` : `<span class="auth-avatar auth-avatar-fallback">👤</span>`}
+        <div class="friend-info">
+          <b>${esc(f.displayName)}</b>
+          <span class="muted">${f.petName ? `🐾 ${esc(f.petName)} · Lv ${f.petLevel || 1}` : "No pal yet"}</span>
+        </div>
+        <div class="friend-btns">
+          <a class="btn small" href="friends.html?visit=${esc(f.uid)}">👀 Visit</a>
+          <button class="btn small" data-gift="${esc(f.uid)}">🎁</button>
+          <button class="btn small" data-cheer="${esc(f.uid)}">📣</button>
+          <button class="btn small ghost" data-remove="${esc(f.uid)}" title="Remove friend">✕</button>
+        </div>
+      </div>`).join("");
+    document.querySelectorAll("[data-gift]").forEach(b => b.onclick = () => quickGift(b.dataset.gift));
+    document.querySelectorAll("[data-cheer]").forEach(b => b.onclick = () => quickCheer(b.dataset.cheer));
+    document.querySelectorAll("[data-remove]").forEach(b => b.onclick = async () => {
+      if (!confirm("Remove this friend?")) return;
+      await Cloud.removeFriend(b.dataset.remove);
+      toast("Friend removed.");
+      loadMain();
+    });
+  }
+
+  // Leaderboard: me + friends, ranked by total pet levels
+  try {
+    const profiles = await Promise.all(friends.map(f => Cloud.getProfile(f.uid).catch(() => null)));
+    const mine = await Cloud.myProfile();
+    const rows = [];
+    if (mine) rows.push({ name: (me.displayName || "Player") + " (you)", score: Cloud.totalLevels(mine), you: true });
+    profiles.forEach((p, i) => { if (p) rows.push({ name: friends[i].displayName, score: Cloud.totalLevels(p) }); });
+    rows.sort((a, b) => b.score - a.score);
+    const medals = ["🥇", "🥈", "🥉"];
+    $("#leaderboard").innerHTML = rows.map((r, i) =>
+      `<div class="lb-row${r.you ? " you" : ""}"><span>${medals[i] || `#${i + 1}`}</span><b>${esc(r.name)}</b><span class="lb-score">${r.score} levels</span></div>`
+    ).join("") || `<p class="muted">No data yet.</p>`;
+  } catch (e) { $("#leaderboard").innerHTML = `<p class="muted">Couldn't load leaderboard.</p>`; }
+}
+
+async function quickGift(uid){
+  const r = await Cloud.sendGift(uid);
+  toast(r.ok ? `🎁 Gift sent! (-${Cloud.GIFT_COINS} coins)` : r.msg);
+  refreshWallet();
+}
+async function quickCheer(uid){
+  const r = await Cloud.cheerFriend(uid);
+  toast(r.ok ? `📣 Cheer sent!` : r.msg);
+}
+
+async function loadVisit(uid){
+  show("fb-visit");
+  refreshWallet();
+  let p = null;
+  try { p = await Cloud.getProfile(uid); } catch (e) {}
+  if (!p) { $("#visit-title").textContent = "Couldn't find that player. 🤔"; return; }
+  const pets = p.pets || [];
+  const pet = pets.find(x => x.id === p.activePetId) || pets[0];
+  $("#visit-title").textContent = `${p.displayName || "Player"}'s pal`;
+  if (!pet) { $("#visit-pet-name").textContent = "No pal yet!"; return; }
+  const v = $("#visit-video");
+  v.poster = `assets/pets/${pet.species}-${pet.stage}.webp`;
+  v.src = `assets/pets/${pet.species}-${pet.stage}-idle.mp4`;
+  const hat = $("#visit-hat");
+  const HAT_POS = { "🎉": "hat-party", "🕶️": "hat-shades", "👑": "hat-crown" };
+  if (pet.hat) { hat.style.display = "block"; hat.textContent = pet.hat; hat.className = "hat " + (HAT_POS[pet.hat] || "hat-party"); }
+  else hat.style.display = "none";
+  const sp = PP.SPECIES[pet.species] || {};
+  $("#visit-pet-name").textContent = `${pet.name} ${pet.stage === "adult" ? "👑" : "🍼"}`;
+  $("#visit-pet-sub").textContent = `${pet.stage === "baby" ? sp.babyName : sp.adultName} · Level ${pet.level} · ${sp.element || ""} type`;
+  const needs = [["hunger", "🍖", "Hunger"], ["happiness", "🎾", "Happiness"], ["energy", "😴", "Energy"]];
+  $("#visit-needs").innerHTML = needs.map(([k, e, l]) =>
+    `<div class="need-row"><span>${e} ${l}</span><div class="bar ${k}"><div style="width:${pet[k] || 0}%"></div></div><span>${Math.round(pet[k] || 0)}</span></div>`
+  ).join("");
+  $("#visit-gift").onclick = async () => {
+    const btn = $("#visit-gift"); btn.disabled = true;
+    const r = await Cloud.sendGift(uid);
+    toast(r.ok ? `🎁 Gift sent to ${pet.name}!` : r.msg);
+    btn.disabled = false; refreshWallet();
+  };
+  $("#visit-cheer").onclick = async () => {
+    const btn = $("#visit-cheer"); btn.disabled = true;
+    const r = await Cloud.cheerFriend(uid);
+    toast(r.ok ? `📣 You cheered ${pet.name} on!` : r.msg);
+    btn.disabled = false;
+  };
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  $("#big-signin").onclick = async () => {
+    const r = await Cloud.signIn();
+    if (!r.ok) toast(r.msg);
+  };
+  $("#copy-code").onclick = () => {
+    const code = $("#my-code").textContent;
+    if (navigator.clipboard) navigator.clipboard.writeText(code).then(() => toast("Code copied! 📋"));
+    else toast("Your code: " + code);
+  };
+  $("#add-friend-btn").onclick = async () => {
+    const input = $("#friend-code-input");
+    const btn = $("#add-friend-btn");
+    btn.disabled = true;
+    const r = await Cloud.addFriend(input.value);
+    toast(r.ok ? `🎉 ${r.name} added as a friend!` : r.msg);
+    if (r.ok) { input.value = ""; loadMain(); }
+    btn.disabled = false;
+  };
+
+  if (!Cloud.configured()) { show("fb-off"); return; }
+  const visitUid = new URLSearchParams(location.search).get("visit");
+  Cloud.onAuth(async (u) => {
+    refreshWallet();
+    if (!u) { show("fb-signin"); return; }
+    if (visitUid) loadVisit(visitUid);
+    else { show("fb-main"); loadMain(); }
+  });
+  Cloud.onSync(() => { if (Cloud.currentUser() && !visitUid) loadMain(); });
+});
+</script>
+</body>
+</html>
