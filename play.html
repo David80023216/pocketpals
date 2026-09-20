@@ -30,7 +30,7 @@
     <div class="card">
       <div class="pet-stage" id="pet-stage" title="Tap to pet!">
         <div class="speech" id="speech" style="display:none"></div>
-        <img class="pet" id="pet-img" src="" alt="Your pal">
+        <video class="pet" id="pet-img" autoplay loop muted playsinline disablepictureinpicture aria-label="Your pal"></video>
         <div class="hat" id="pet-hat" style="display:none"></div>
       </div>
       <p class="pet-hint">👆 Tap your pal to pet it!</p>
@@ -89,8 +89,12 @@ function render(){
   $("#game").style.display="block";
   document.body.classList.toggle("golden-den", s.background==="golden");
 
-  $("#pet-img").src=Game.artFor(pet);
-  $("#pet-img").alt=pet.name;
+  const pv=$("#pet-img");
+  pv.poster=Game.artFor(pet);
+  const vsrc=Game.videoFor(pet);
+  if(pv.getAttribute("src")!==vsrc) pv.setAttribute("src",vsrc);
+  pv.onerror=()=>{ if(pv.getAttribute("src")) pv.removeAttribute("src"); };
+  pv.setAttribute("aria-label",pet.name);
   const hat=$("#pet-hat");
   if(pet.hat){ hat.style.display="block"; hat.textContent=pet.hat; } else hat.style.display="none";
   $("#pet-name").textContent=`${pet.name} ${pet.stage==="adult"?"👑":"🍼"}`;
