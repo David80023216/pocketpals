@@ -28,10 +28,12 @@
   <div id="game" style="display:none">
     <div class="streak" id="streak"></div>
     <div class="card">
-      <div class="pet-stage">
+      <div class="pet-stage" id="pet-stage" title="Tap to pet!">
+        <div class="speech" id="speech" style="display:none"></div>
         <img class="pet" id="pet-img" src="" alt="Your pal">
         <div class="hat" id="pet-hat" style="display:none"></div>
       </div>
+      <p class="pet-hint">👆 Tap your pal to pet it!</p>
       <div style="text-align:center">
         <div class="pet-name" id="pet-name"></div>
         <div class="pet-sub" id="pet-sub"></div>
@@ -108,8 +110,8 @@ function render(){
 
   $("#actions").innerHTML=Object.entries(PP.ACTIONS).map(([id,a])=>{
     const left=Game.cooldownLeft(id);
-    return `<div class="action-btn"><button class="btn" data-act="${id}" ${left>0?"disabled":""}>${a.emoji} ${a.label}</button>
-      ${left>0?`<div class="cool">${Game.fmtTime(left)}</div>`:""}</div>`;
+    const label=left>0?`⏳ ${Game.fmtTime(left)}`:`${a.emoji} ${a.label}`;
+    return `<div class="action-btn"><button class="btn" data-act="${id}" ${left>0?"disabled":""}>${label}</button></div>`;
   }).join("");
   document.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
     const r=Game.doAction(b.dataset.act);
@@ -136,6 +138,47 @@ function render(){
   }
   render();
   setInterval(render, 30000);
+
+  // Live 1-second countdown: ticks the disabled buttons, re-enables them when done
+  setInterval(()=>{
+    let expired=false;
+    document.querySelectorAll("#actions [data-act]").forEach(b=>{
+      const left=Game.cooldownLeft(b.dataset.act);
+      if(left>0){ b.innerHTML=`⏳ ${Game.fmtTime(left)}`; }
+      else if(b.disabled){ expired=true; }
+    });
+    if(expired) render();
+  },1000);
+
+  // Tap-to-pet: squish animation, floating hearts, +happiness, cute reactions
+  const stage=$("#pet-stage"), speech=$("#speech");
+  const REACT=["*nuzzles your hand* 💕","*purrs contentedly* 😊","*does a happy wiggle!* 🎶",
+    "*boops you back!* 👃","*sparkles with joy* ✨","*rolls over for belly rubs* 🥰",
+    "*leans into the scritches* 💖"];
+  let lastSpeech=0;
+  stage.addEventListener("pointerdown",e=>{
+    const pet=Game.activePet(); if(!pet) return;
+    const img=$("#pet-img");
+    img.classList.remove("petting"); void img.offsetWidth; img.classList.add("petting");
+    const r=stage.getBoundingClientRect();
+    const x=e.clientX-r.left, y=e.clientY-r.top;
+    for(let i=0;i<4;i++){
+      const h=document.createElement("div"); h.className="heart-float";
+      h.textContent=["💕","💖","💗","❤️"][Math.floor(Math.random()*4)];
+      h.style.left=(x-14+Math.random()*28)+"px";
+      h.style.top=(y-14+Math.random()*20)+"px";
+      stage.appendChild(h); setTimeout(()=>h.remove(),1100);
+    }
+    if(Game.petPet().ok){
+      render();
+      if(Date.now()-lastSpeech>9000 && Math.random()<0.6){
+        lastSpeech=Date.now();
+        speech.textContent=REACT[Math.floor(Math.random()*REACT.length)];
+        speech.style.display="block";
+        setTimeout(()=>speech.style.display="none",1800);
+      }
+    }
+  });
 })();
 </script>
 </body>
