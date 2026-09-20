@@ -24,7 +24,7 @@
         ? `<img class="auth-avatar" src="${esc(u.photoURL)}" alt="">`
         : `<span class="auth-avatar auth-avatar-fallback">👤</span>`;
       slot.innerHTML = `${avatar}<span class="auth-name">${esc(u.displayName || "Player")}</span>` +
-        `<button class="auth-btn ghost" id="pp-signout" title="Sign out">⏻</button>`;
+        `<button class="auth-btn ghost" id="pp-signout" title="Sign out">🚪</button>`;
       document.getElementById("pp-signout").onclick = () => {
         if (confirm("Sign out of Pocket Pals? Your pals stay saved on this device.")) Cloud.signOut();
       };
