@@ -119,6 +119,7 @@ const Game = (() => {
     S.cooldowns[actionId] = Date.now() + def.cooldownSec * 1000;
     pet.updatedAt = Date.now();
     save();
+    if (window.Missions) Missions.bump(actionId);
 
     const result = {
       ok: true,
@@ -159,6 +160,7 @@ const Game = (() => {
     }
     if (leveled) {
       save();
+      if (window.Missions) Missions.bump("levelup");
       if (pet.level >= PP.EVOLVE_LEVEL && pet.stage === "baby") {
         pet.stage = "adult";
         save();
