@@ -73,11 +73,11 @@ a { color: var(--pink-dark); }
 
 /* play dashboard */
 .pet-stage { position: relative; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.pet-stage img.pet {
+.pet-stage .pet {
   width: min(340px, 80vw); border-radius: 28px; box-shadow: var(--shadow);
-  animation: bob 3s ease-in-out infinite; user-select: none;
+  animation: bob 3s ease-in-out infinite; user-select: none; background: #eef7ff;
 }
-.pet-stage img.pet.petting { animation: squish .45s ease; }
+.pet-stage .pet.petting { animation: squish .45s ease; }
 @keyframes squish {
   0% { transform: scale(1, 1); }
   30% { transform: scale(1.14, .8); }
