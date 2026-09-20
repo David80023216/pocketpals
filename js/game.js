@@ -11,6 +11,7 @@ const Game = (() => {
     streak: { count: 0, lastVisit: null },
     sitterUntil: 0, background: "default",
     cooldowns: {}, // actionId -> timestamp when usable again
+    lastPetAt: 0, // timestamp of last effective petting (anti-spam)
     createdAt: Date.now(),
   });
 
@@ -125,6 +126,22 @@ const Game = (() => {
     const ev = maybeEvent(pet);
     if (ev) result.event = ev;
     return result;
+  }
+
+  /* ---------- petting (tap the pet) ---------- */
+  const PET_COOLDOWN_MS = 5000;
+  const PET_HAPPINESS = 2;
+  function petPet() {
+    const pet = activePet();
+    if (!pet) return { ok: false };
+    tickAll();
+    const now = Date.now();
+    if (now - (S.lastPetAt || 0) < PET_COOLDOWN_MS) return { ok: false, cooled: true };
+    S.lastPetAt = now;
+    pet.happiness = Math.min(100, pet.happiness + PET_HAPPINESS);
+    pet.updatedAt = now;
+    save();
+    return { ok: true, gained: PET_HAPPINESS };
   }
 
   function addXp(pet, amount) {
@@ -250,7 +267,7 @@ const Game = (() => {
 
   return {
     state: () => S, save, tickAll, adopt, activePet, petById, speciesOf, displayName, artFor,
-    mood, doAction, cooldownLeft, checkStreak, buyCoinItem, buyGemItem, removeHat,
+    mood, doAction, petPet, cooldownLeft, checkStreak, buyCoinItem, buyGemItem, removeHat,
     renamePet, addGems, switchPet, fmtTime, canAdoptMore, todayStr,
   };
 })();
