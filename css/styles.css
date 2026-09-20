@@ -72,12 +72,30 @@ a { color: var(--pink-dark); }
 }
 
 /* play dashboard */
-.pet-stage { position: relative; text-align: center; }
+.pet-stage { position: relative; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .pet-stage img.pet {
   width: min(340px, 80vw); border-radius: 28px; box-shadow: var(--shadow);
-  animation: bob 3s ease-in-out infinite;
+  animation: bob 3s ease-in-out infinite; user-select: none;
+}
+.pet-stage img.pet.petting { animation: squish .45s ease; }
+@keyframes squish {
+  0% { transform: scale(1, 1); }
+  30% { transform: scale(1.14, .8); }
+  60% { transform: scale(.92, 1.1); }
+  100% { transform: scale(1, 1); }
 }
 @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.heart-float {
+  position: absolute; font-size: 28px; pointer-events: none; z-index: 5;
+  animation: floatUp 1s ease-out forwards;
+}
+@keyframes floatUp { to { transform: translateY(-90px) scale(1.35); opacity: 0; } }
+.speech {
+  position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+  background: #fff; border-radius: 16px; padding: 8px 16px; font-weight: 800;
+  box-shadow: var(--shadow); z-index: 6; white-space: nowrap; animation: pop .25s;
+}
+.pet-hint { text-align: center; opacity: .65; font-size: .9rem; margin: 6px 0 0; }
 .pet-stage .hat {
   position: absolute; top: 2%; left: 50%; transform: translateX(-50%) rotate(-8deg);
   font-size: 64px; filter: drop-shadow(0 4px 4px rgba(0,0,0,.2)); pointer-events: none;
@@ -95,9 +113,8 @@ a { color: var(--pink-dark); }
 .xpbar { height: 12px; background: #eee4f5; border-radius: 999px; overflow: hidden; margin-top: 6px; }
 .xpbar > div { height: 100%; background: linear-gradient(90deg, var(--lav), #a678ff); border-radius: 999px; transition: width .5s; }
 .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 16px 0; }
-.action-btn { position: relative; min-width: 120px; }
-.cool { position: absolute; inset: 0; background: rgba(255,255,255,.55); border-radius: 999px;
-        display: flex; align-items: center; justify-content: center; font-weight: 900; }
+.action-btn { position: relative; min-width: 150px; }
+.action-btn .btn { width: 100%; }
 .streak { background: linear-gradient(90deg, #fff3c4, #ffe28a); border: 2px dashed #e0a800;
           border-radius: 16px; padding: 12px; text-align: center; font-weight: 800; margin: 14px 0; }
 
