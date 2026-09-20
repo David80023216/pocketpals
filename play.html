@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Play — Pocket Pals</title>
+<meta name="description" content="Care for your Pocket Pal: feed, play, and rest to keep it happy and help it evolve.">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+  <a class="logo" href="index.html">🐾 Pocket <span>Pals</span></a>
+  <a class="nlink active" href="play.html">Play</a>
+  <a class="nlink" href="collection.html">My Pals</a>
+  <a class="nlink" href="shop.html">Shop</a>
+  <a class="nlink" href="store.html">💎 Store</a>
+  <a class="nlink" href="about.html">About</a>
+  <span class="wallet"><span class="pill" id="w-coins">🪙 0</span><span class="pill" id="w-gems">💎 0</span></span>
+</div></nav>
+
+<div class="wrap">
+  <div id="no-pet" class="card" style="display:none;text-align:center">
+    <h2>You don't have a pal yet!</h2>
+    <p>Adopt your first Pocket Pal to start playing.</p>
+    <a class="btn" href="index.html">Adopt a pal 🐾</a>
+  </div>
+
+  <div id="game" style="display:none">
+    <div class="streak" id="streak"></div>
+    <div class="card">
+      <div class="pet-stage">
+        <img class="pet" id="pet-img" src="" alt="Your pal">
+        <div class="hat" id="pet-hat" style="display:none"></div>
+      </div>
+      <div style="text-align:center">
+        <div class="pet-name" id="pet-name"></div>
+        <div class="pet-sub" id="pet-sub"></div>
+        <div class="mood" id="pet-mood"></div>
+        <div style="margin-top:10px;font-weight:800" id="xp-line"></div>
+        <div class="xpbar"><div id="xp-fill"></div></div>
+      </div>
+      <div class="needs" id="needs"></div>
+      <div class="actions" id="actions"></div>
+      <p style="text-align:center;opacity:.7;font-size:.9rem">💡 Keep all needs above 75 for a <b>2x coin thriving bonus</b>!</p>
+    </div>
+
+    <!-- AD SLOT: replace with your ad network code (Ezoic, Media.net, etc.) -->
+    <div class="ad-slot">Advertisement</div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+<div id="modal-root"></div>
+<footer><a href="about.html">About</a> · <a href="store.html">Gem Store</a> · Made with 💕 by Pocket Pals</footer>
+
+<script src="js/data.js"></script>
+<script src="js/game.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+function toast(msg){ const t=document.createElement("div"); t.className="toast"; t.textContent=msg; $("#toasts").appendChild(t); setTimeout(()=>t.remove(), 4200); }
+function refreshWallet(){ const s=Game.state(); $("#w-coins").textContent="🪙 "+s.coins; $("#w-gems").textContent="💎 "+s.gems; }
+function confetti(){
+  const em=["🎉","✨","💖","⭐","🌟"];
+  for(let i=0;i<40;i++){
+    const c=document.createElement("div"); c.className="confetti";
+    c.textContent=em[Math.floor(Math.random()*em.length)];
+    c.style.left=Math.random()*100+"vw"; c.style.animationDuration=(2+Math.random()*2)+"s";
+    document.body.appendChild(c); setTimeout(()=>c.remove(), 4200);
+  }
+}
+function evolveModal(pet){
+  confetti();
+  $("#modal-root").innerHTML=`<div class="modal-bg"><div class="modal">
+    <h2>🎉 EVOLUTION! 🎉</h2>
+    <img src="${Game.artFor(pet)}" alt="Evolved">
+    <h3>${pet.name} grew into a ${Game.displayName(pet)}!</h3>
+    <p>All that love paid off. Keep caring to reach even greater heights!</p>
+    <button class="btn" onclick="document.getElementById('modal-root').innerHTML=''">Amazing! 💕</button>
+  </div></div>`;
+}
+
+function render(){
+  Game.tickAll();
+  const s=Game.state(), pet=Game.activePet();
+  refreshWallet();
+  if(!pet){ $("#no-pet").style.display="block"; return; }
+  $("#game").style.display="block";
+  document.body.classList.toggle("golden-den", s.background==="golden");
+
+  $("#pet-img").src=Game.artFor(pet);
+  $("#pet-img").alt=pet.name;
+  const hat=$("#pet-hat");
+  if(pet.hat){ hat.style.display="block"; hat.textContent=pet.hat; } else hat.style.display="none";
+  $("#pet-name").textContent=`${pet.name} ${pet.stage==="adult"?"👑":"🍼"}`;
+  $("#pet-sub").textContent=`${Game.displayName(pet)} · Level ${pet.level} · ${Game.speciesOf(pet).element} type`;
+  const m=Game.mood(pet);
+  $("#pet-mood").textContent=`${m.emoji} ${m.text}`;
+  const need=PP.xpForLevel(pet.level);
+  $("#xp-line").textContent = pet.stage==="baby"
+    ? `Evolves at level ${PP.EVOLVE_LEVEL} — ${need-pet.xp} XP to next level`
+    : `Level ${pet.level} — ${need-pet.xp} XP to next (+${PP.LEVEL_GEM_REWARD} 💎)`;
+  $("#xp-fill").style.width=Math.min(100, pet.xp/need*100)+"%";
+
+  const needs=[["hunger","🍖","Hunger"],["happiness","🎾","Happiness"],["energy","😴","Energy"]];
+  $("#needs").innerHTML=needs.map(([k,e,l])=>
+    `<div class="need-row"><span>${e} ${l}</span><div class="bar ${k}"><div style="width:${pet[k]}%"></div></div><span>${Math.round(pet[k])}</span></div>`
+  ).join("");
+
+  $("#actions").innerHTML=Object.entries(PP.ACTIONS).map(([id,a])=>{
+    const left=Game.cooldownLeft(id);
+    return `<div class="action-btn"><button class="btn" data-act="${id}" ${left>0?"disabled":""}>${a.emoji} ${a.label}</button>
+      ${left>0?`<div class="cool">${Game.fmtTime(left)}</div>`:""}</div>`;
+  }).join("");
+  document.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
+    const r=Game.doAction(b.dataset.act);
+    toast(r.msg);
+    const p=Game.activePet();
+    if(r.evolved && p) setTimeout(()=>evolveModal(p), 700);
+    else if(r.leveled && p) setTimeout(()=>{ toast(`⭐ Level up! ${p.name} is now level ${p.level} (+${PP.LEVEL_GEM_REWARD} 💎)`); confetti(); }, 700);
+    if(r.event) setTimeout(()=>toast(r.event), 1400);
+    render();
+  });
+
+  const st=Game.checkStreak();
+  const sitter=Date.now()<s.sitterUntil;
+  $("#streak").innerHTML=`🔥 Day ${st.count} streak! ${st.awarded?`+${st.awarded} coins today!`:"Come back tomorrow to grow it!"}${sitter?` · 🤝 Pet Sitter active (${Game.fmtTime(s.sitterUntil-Date.now())} left)`:""}`;
+}
+
+(function init(){
+  const s=Game.state();
+  if(s.pets.length && !sessionStorage.getItem("pp_welcomed")){
+    sessionStorage.setItem("pp_welcomed","1");
+    const p=Game.activePet();
+    const awayHrs=(Date.now()-(p.updatedAt||Date.now()))/3600000;
+    if(awayHrs>2) setTimeout(()=>toast(`💕 ${p.name} missed you! Welcome back!`), 800);
+  }
+  render();
+  setInterval(render, 30000);
+})();
+</script>
+</body>
+</html>

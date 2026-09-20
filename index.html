@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pocket Pals — Adopt. Nurture. Evolve.</title>
+<meta name="description" content="Pocket Pals is a free virtual pet game. Adopt a magical pal, keep it happy, watch it evolve, and unlock upgrades.">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+  <a class="logo" href="index.html">🐾 Pocket <span>Pals</span></a>
+  <a class="nlink" href="play.html">Play</a>
+  <a class="nlink" href="collection.html">My Pals</a>
+  <a class="nlink" href="shop.html">Shop</a>
+  <a class="nlink" href="store.html">💎 Store</a>
+  <a class="nlink" href="about.html">About</a>
+  <span class="wallet"><span class="pill" id="w-coins">🪙 0</span><span class="pill" id="w-gems">💎 0</span></span>
+</div></nav>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>Adopt. Nurture. <span>Evolve.</span></h1>
+    <p>Choose a magical pal, keep its tummy full and its heart happy,<br>and watch it grow from a tiny baby into a magnificent adult.</p>
+    <div id="continue-box"></div>
+  </div>
+
+  <div class="card" id="adopt-card">
+    <h2 style="text-align:center;margin-top:0">Choose your pal 💕</h2>
+    <div class="adopt-grid" id="adopt-grid"></div>
+    <div id="adopt-detail" style="display:none;text-align:center;margin-top:18px">
+      <h3 id="ad-name"></h3>
+      <p id="ad-blurb"></p>
+      <p><span class="tag" id="ad-element"></span> <em id="ad-personality"></em></p>
+      <div class="name-row">
+        <input id="pet-name" maxlength="14" placeholder="Name your pal…">
+        <button class="btn" id="adopt-btn">Adopt! 🐾</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>How it works</h2>
+    <p>🧡 <b>Care for your pal</b> — feed, play, and nap to keep hunger, happiness & energy high. Needs drain in real time, even while you're away!</p>
+    <p>✨ <b>Watch it evolve</b> — every bit of care earns XP. Reach level 5 and your baby grows into its adult form.</p>
+    <p>🎁 <b>Surprises await</b> — your pal sometimes finds gifts, coins, even rare gems while you play.</p>
+    <p>🔥 <b>Come back daily</b> — streak rewards grow every consecutive day you visit.</p>
+    <p>🛍️ <b>Upgrade</b> — spend coins on snacks and silly hats, or gems on extra pals, a pet sitter, and a golden den.</p>
+  </div>
+
+  <!-- AD SLOT: replace with your ad network code (Ezoic, Media.net, etc.) -->
+  <div class="ad-slot">Advertisement</div>
+</div>
+
+<div id="toasts"></div>
+<footer><a href="about.html">About</a> · <a href="store.html">Gem Store</a> · Made with 💕 by Pocket Pals</footer>
+
+<script src="js/data.js"></script>
+<script src="js/game.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+function toast(msg){ const t=document.createElement("div"); t.className="toast"; t.textContent=msg; $("#toasts").appendChild(t); setTimeout(()=>t.remove(), 4200); }
+function refreshWallet(){ const s=Game.state(); $("#w-coins").textContent="🪙 "+s.coins; $("#w-gems").textContent="💎 "+s.gems; }
+
+let chosen=null;
+function renderGrid(){
+  const g=$("#adopt-grid"); g.innerHTML="";
+  PP.SPECIES_ORDER.forEach(sp=>{
+    const d=PP.SPECIES[sp];
+    const div=document.createElement("div");
+    div.className="pet-pick card"+(chosen===sp?" selected":"");
+    div.innerHTML=`<img src="assets/pets/${sp}-baby.webp" alt="${d.babyName}"><h3>${d.babyName}</h3><span class="tag">${d.element}</span><p>${d.blurb}</p>`;
+    div.onclick=()=>{ chosen=sp; renderGrid(); showDetail(); };
+    g.appendChild(div);
+  });
+}
+function showDetail(){
+  const d=PP.SPECIES[chosen];
+  $("#adopt-detail").style.display="block";
+  $("#ad-name").textContent=d.babyName;
+  $("#ad-blurb").textContent=d.blurb;
+  $("#ad-element").textContent=d.element;
+  $("#ad-personality").textContent=d.personality;
+  $("#adopt-detail").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+$("#adopt-btn").onclick=()=>{
+  if(!chosen){ toast("Pick a pal first! 💕"); return; }
+  Game.tickAll();
+  const pet=Game.adopt(chosen, $("#pet-name").value);
+  toast(`${pet.name} joined your family! 🎉`);
+  setTimeout(()=>location.href="play.html", 900);
+};
+
+(function init(){
+  Game.tickAll();
+  refreshWallet();
+  const s=Game.state();
+  if(s.pets.length){
+    $("#continue-box").innerHTML=`<a class="btn" href="play.html">Continue playing 💕</a>`;
+    $("#adopt-card").style.display = Game.canAdoptMore() ? "block" : "none";
+    if(!Game.canAdoptMore()) return;
+  }
+  renderGrid();
+})();
+</script>
+</body>
+</html>

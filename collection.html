@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Pals — Pocket Pals</title>
+<meta name="description" content="All your adopted Pocket Pals in one place.">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+  <a class="logo" href="index.html">🐾 Pocket <span>Pals</span></a>
+  <a class="nlink" href="play.html">Play</a>
+  <a class="nlink active" href="collection.html">My Pals</a>
+  <a class="nlink" href="shop.html">Shop</a>
+  <a class="nlink" href="store.html">💎 Store</a>
+  <a class="nlink" href="about.html">About</a>
+  <span class="wallet"><span class="pill" id="w-coins">🪙 0</span><span class="pill" id="w-gems">💎 0</span></span>
+</div></nav>
+
+<div class="wrap">
+  <div class="hero"><h1>My <span>Pals</span> 💕</h1><p id="sub"></p></div>
+  <div class="col-grid" id="grid"></div>
+  <div class="card" id="adopt-more" style="text-align:center"></div>
+</div>
+
+<div id="toasts"></div>
+<footer><a href="about.html">About</a> · <a href="store.html">Gem Store</a> · Made with 💕 by Pocket Pals</footer>
+
+<script src="js/data.js"></script>
+<script src="js/game.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;$("#toasts").appendChild(t);setTimeout(()=>t.remove(),4200);}
+function render(){
+  Game.tickAll();
+  const s=Game.state();
+  $("#w-coins").textContent="🪙 "+s.coins; $("#w-gems").textContent="💎 "+s.gems;
+  $("#sub").textContent=`${s.pets.length} of ${s.maxPets} pal${s.maxPets>1?"s":""} adopted`;
+  const g=$("#grid"); g.innerHTML="";
+  s.pets.forEach(p=>{
+    const m=Game.mood(p);
+    const d=document.createElement("div");
+    d.className="card col-pet"+(p.id===s.activePetId?" active":"");
+    d.innerHTML=`<img src="${Game.artFor(p)}" alt="${p.name}"><h3>${p.name}</h3>
+      <p><span class="tag">${Game.displayName(p)}</span> <span class="tag">Lv ${p.level}</span></p><p>${m.emoji} ${m.text}</p>`;
+    d.onclick=()=>{ Game.switchPet(p.id); toast(`Now playing with ${p.name}! 💕`); setTimeout(()=>location.href="play.html",700); };
+    g.appendChild(d);
+  });
+  const am=$("#adopt-more");
+  if(Game.canAdoptMore()) am.innerHTML=`<h3>Room for more love!</h3><p>You can keep up to ${s.maxPets} pal${s.maxPets>1?"s":""}.</p><a class="btn" href="index.html">Adopt another pal 🐾</a>`;
+  else if(s.maxPets<3) am.innerHTML=`<h3>Want more pals?</h3><p>Unlock an extra pet slot in the <a href="shop.html">shop</a> (💎 gems).</p>`;
+  else am.innerHTML=`<h3>🏆 Full house!</h3><p>You've adopted every pal slot. You're officially a Pal Master!</p>`;
+}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gem Store — Pocket Pals</title>
+<meta name="description" content="Get gems for Pocket Pals. Gems buy fixed upgrades only — never random draws.">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+  <a class="logo" href="index.html">🐾 Pocket <span>Pals</span></a>
+  <a class="nlink" href="play.html">Play</a>
+  <a class="nlink" href="collection.html">My Pals</a>
+  <a class="nlink" href="shop.html">Shop</a>
+  <a class="nlink active" href="store.html">💎 Store</a>
+  <a class="nlink" href="about.html">About</a>
+  <span class="wallet"><span class="pill" id="w-coins">🪙 0</span><span class="pill" id="w-gems">💎 0</span></span>
+</div></nav>
+
+<div class="wrap">
+  <div class="hero"><h1>Gem <span>Store</span> 💎</h1>
+  <p>Gems unlock <b>fixed, guaranteed upgrades</b> — extra pals, the Pet Sitter, golden den.<br>Gems never buy random draws. What you pick is what you get.</p></div>
+
+  <div class="shop-grid" id="packs"></div>
+
+  <div class="card">
+    <h3>🎟️ Redeem a gem code</h3>
+    <p>Bought gems? Paste the code from your receipt email below.</p>
+    <div class="code-box">
+      <input id="code" placeholder="PP-XXXX-XXXX-XXXX" autocomplete="off">
+      <button class="btn small" id="redeem">Redeem</button>
+    </div>
+    <p id="redeem-msg" style="font-weight:700"></p>
+  </div>
+
+  <div class="card" style="font-size:.9rem;opacity:.85">
+    <h3>Fair-play promise</h3>
+    <p>💎 Gems buy only <b>deterministic perks</b> listed in the <a href="shop.html">shop</a>. Nothing you can buy involves chance, draws, or loot boxes.</p>
+    <p>🎮 The core game — adopting, caring, evolving — is completely free. Coins are earned by playing.</p>
+    <p>💰 Virtual items have no cash value and can't be refunded, transferred, or cashed out.</p>
+    <p>📧 Questions? Contact: <b>support@example.com</b> (replace before launch).</p>
+  </div>
+</div>
+
+<div id="toasts"></div>
+<footer><a href="about.html">About</a> · Made with 💕 by Pocket Pals</footer>
+
+<script src="js/data.js"></script>
+<script src="js/game.js"></script>
+<script src="js/store.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop — Pocket Pals</title>
+<meta name="description" content="Spoil your Pocket Pal with snacks, toys, hats, and premium upgrades.">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+  <a class="logo" href="index.html">🐾 Pocket <span>Pals</span></a>
+  <a class="nlink" href="play.html">Play</a>
+  <a class="nlink" href="collection.html">My Pals</a>
+  <a class="nlink active" href="shop.html">Shop</a>
+  <a class="nlink" href="store.html">💎 Store</a>
+  <a class="nlink" href="about.html">About</a>
+  <span class="wallet"><span class="pill" id="w-coins">🪙 0</span><span class="pill" id="w-gems">💎 0</span></span>
+</div></nav>
+
+<div class="wrap">
+  <div class="hero"><h1>Pet <span>Shop</span> 🛍️</h1><p>Spoil your pal. You know you want to.</p></div>
+
+  <h2 class="section">🪙 Coin goodies</h2>
+  <div class="shop-grid" id="coin-shop"></div>
+
+  <h2 class="section">💎 Gem upgrades <small style="font-weight:400">(deterministic perks — never random)</small></h2>
+  <div class="shop-grid" id="gem-shop"></div>
+  <p style="text-align:center">Need gems? <a href="store.html"><b>Get them in the Gem Store →</b></a></p>
+
+  <!-- AD SLOT: replace with your ad network code (Ezoic, Media.net, etc.) -->
+  <div class="ad-slot">Advertisement</div>
+</div>
+
+<div id="toasts"></div>
+<div id="modal-root"></div>
+<footer><a href="about.html">About</a> · <a href="store.html">Gem Store</a> · Made with 💕 by Pocket Pals</footer>
+
+<script src="js/data.js"></script>
+<script src="js/game.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;$("#toasts").appendChild(t);setTimeout(()=>t.remove(),4200);}
+function refreshWallet(){const s=Game.state();$("#w-coins").textContent="🪙 "+s.coins;$("#w-gems").textContent="💎 "+s.gems;}
+function render(){
+  Game.tickAll(); refreshWallet();
+  const s=Game.state(), pet=Game.activePet();
+  $("#coin-shop").innerHTML=PP.COIN_SHOP.map(i=>
+    `<div class="card shop-item"><div class="emoji">${i.emoji}</div><h3>${i.name}</h3><p>${i.desc}</p>
+     <div class="price">🪙 ${i.cost}</div><br><button class="btn small" data-coin="${i.id}" ${!pet||s.coins<i.cost?"disabled":""}>Buy</button></div>`).join("");
+  $("#gem-shop").innerHTML=PP.GEM_SHOP.map(i=>{
+    const maxed=i.effect.slot&&s.maxPets>=i.maxSlots;
+    return `<div class="card shop-item"><div class="emoji">${i.emoji}</div><h3>${i.name}</h3><p>${i.desc}</p>
+     <div class="price">💎 ${i.cost}</div><br><button class="btn small secondary" data-gem="${i.id}" ${s.gems<i.cost||maxed?"disabled":""}>${maxed?"Maxed!":"Buy"}</button></div>`;
+  }).join("");
+  document.querySelectorAll("[data-coin]").forEach(b=>b.onclick=()=>{const r=Game.buyCoinItem(b.dataset.coin);toast(r.msg);render();});
+  document.querySelectorAll("[data-gem]").forEach(b=>b.onclick=()=>{
+    const r=Game.buyGemItem(b.dataset.gem); toast(r.msg);
+    if(r.needsRename){
+      const pet=Game.activePet();
+      $("#modal-root").innerHTML=`<div class="modal-bg"><div class="modal"><h3>${r.msg}</h3>
+        <div class="name-row"><input id="rn" maxlength="14" placeholder="New name…"><button class="btn" id="rn-go">Done</button></div></div></div>`;
+      $("#rn-go").onclick=()=>{ if(Game.renamePet(pet.id,$("#rn").value)){ toast("Name updated! ✨"); $("#modal-root").innerHTML=""; } else toast("Enter a name first!"); };
+    }
+    render();
+  });
+  const rm=document.createElement("div"); rm.style.textAlign="center"; rm.style.marginTop="10px";
+  if(pet&&pet.hat){ rm.innerHTML=`<button class="btn small secondary" id="rmhat">Remove ${pet.name}'s hat</button>`; }
+  const old=document.getElementById("rmhat-wrap"); if(old) old.remove();
+  rm.id="rmhat-wrap"; document.querySelector(".wrap").appendChild(rm);
+  const rb=document.getElementById("rmhat"); if(rb) rb.onclick=()=>{Game.removeHat();toast("Hat removed.");render();};
+}
+render();
+</script>
+</body>
+</html>

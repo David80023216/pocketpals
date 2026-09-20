@@ -1,0 +1,9 @@
+name = "pocketpals-gems"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "gem_codes"
+# Create with: wrangler kv:namespace create gem_codes
+# then paste the id below:
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
