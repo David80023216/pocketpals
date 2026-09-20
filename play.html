@@ -107,7 +107,12 @@ function render(){
   pv.setAttribute("aria-label",pet.name);
   const hat=$("#pet-hat");
   const HAT_POS={ "🎉":"hat-party", "🕶️":"hat-shades", "👑":"hat-crown" };
-  if(pet.hat){ hat.style.display="block"; hat.textContent=pet.hat; hat.className="hat "+(HAT_POS[pet.hat]||"hat-party"); }
+  const SHADES_SVG=`<svg viewBox="0 0 220 84" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="sunglasses"><defs><linearGradient id="ppLens" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a5160"/><stop offset=".5" stop-color="#20242e"/><stop offset="1" stop-color="#0a0c11"/></linearGradient></defs><g><path d="M8 22 L1 15" stroke="#0b0d12" stroke-width="7" stroke-linecap="round"/><path d="M212 22 L219 15" stroke="#0b0d12" stroke-width="7" stroke-linecap="round"/><rect x="8" y="10" width="94" height="60" rx="22" fill="url(#ppLens)" stroke="#0b0d12" stroke-width="6"/><rect x="118" y="10" width="94" height="60" rx="22" fill="url(#ppLens)" stroke="#0b0d12" stroke-width="6"/><path d="M102 25 Q110 13 118 25" fill="none" stroke="#0b0d12" stroke-width="7" stroke-linecap="round"/><path d="M28 20 L48 20 L36 60 L20 60 Z" fill="#ffffff" opacity=".18"/><path d="M138 20 L158 20 L146 60 L130 60 Z" fill="#ffffff" opacity=".18"/></g></svg>`;
+  if(pet.hat){
+    hat.style.display="block";
+    hat.className="hat "+(HAT_POS[pet.hat]||"hat-party");
+    if(pet.hat==="🕶️"){ hat.innerHTML=SHADES_SVG; } else { hat.textContent=pet.hat; }
+  }
   else hat.style.display="none";
   $("#pet-name").textContent=`${pet.name} ${pet.stage==="adult"?"👑":"🍼"}`;
   $("#pet-sub").textContent=`${Game.displayName(pet)} · Level ${pet.level} · ${Game.speciesOf(pet).element} type`;
