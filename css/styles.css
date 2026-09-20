@@ -73,9 +73,10 @@ a { color: var(--pink-dark); }
 
 /* play dashboard */
 .pet-stage { position: relative; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.pet-bob { position: relative; display: inline-block; animation: bob 3s ease-in-out infinite; }
 .pet-stage .pet {
   width: min(340px, 80vw); border-radius: 28px; box-shadow: var(--shadow);
-  animation: bob 3s ease-in-out infinite; user-select: none; background: #eef7ff;
+  user-select: none; background: #eef7ff; display: block;
 }
 .pet-stage .pet.petting { animation: squish .45s ease; }
 @keyframes squish {
@@ -96,14 +97,14 @@ a { color: var(--pink-dark); }
   box-shadow: var(--shadow); z-index: 6; white-space: nowrap; animation: pop .25s;
 }
 .pet-hint { text-align: center; opacity: .65; font-size: .9rem; margin: 6px 0 0; }
-.pet-stage .hat {
+.pet-bob .hat {
   position: absolute; left: 50%; transform: translateX(-50%);
   filter: drop-shadow(0 4px 4px rgba(0,0,0,.2)); pointer-events: none; z-index: 3;
   text-align: center; line-height: 1;
 }
-.pet-stage .hat-party { top: 2%; font-size: 64px; transform: translateX(-50%) rotate(-8deg); }
-.pet-stage .hat-shades { top: 44%; font-size: 88px; }
-.pet-stage .hat-crown { top: 0%; font-size: 60px; transform: translateX(-50%) rotate(8deg); }
+.pet-bob .hat-party { top: 2%; font-size: 64px; transform: translateX(-50%) rotate(-8deg); }
+.pet-bob .hat-shades { top: 44%; font-size: 88px; }
+.pet-bob .hat-crown { top: 0%; font-size: 60px; transform: translateX(-50%) rotate(8deg); }
 .pet-name { font-size: 1.8rem; font-weight: 900; margin: 10px 0 2px; }
 .pet-sub { opacity: .75; margin-bottom: 8px; }
 .mood { font-size: 1.15rem; font-weight: 800; background: #fff; display: inline-block; padding: 8px 18px; border-radius: 999px; box-shadow: var(--shadow); }
@@ -165,3 +166,41 @@ footer a { margin: 0 8px; }
   .hero h1 { font-size: 2rem; }
   .need-row { grid-template-columns: 92px 1fr 40px; font-size: .9rem; }
 }
+
+/* ---------- accounts & friends ---------- */
+#auth-slot { display: inline-flex; align-items: center; gap: 8px; margin-left: 4px; }
+.auth-btn { background: #fff; border: 2px solid var(--pink); color: var(--ink); font-weight: 800;
+  border-radius: 999px; padding: 6px 14px; cursor: pointer; font-size: .9rem; font-family: inherit; }
+.auth-btn:hover { background: #ffe0ee; }
+.auth-btn.ghost { border-color: #d9cfe0; padding: 6px 10px; }
+.auth-btn:disabled { opacity: .6; cursor: default; }
+.auth-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+.auth-avatar.big { width: 52px; height: 52px; }
+.auth-avatar-fallback { display: inline-flex; align-items: center; justify-content: center;
+  background: #ffe0ee; font-size: 1.1rem; }
+.auth-name { font-weight: 800; font-size: .9rem; max-width: 110px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; }
+.friend-me #me-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.code-box { display: flex; align-items: center; gap: 10px; background: #f6f1f7;
+  border-radius: 14px; padding: 10px 14px; flex-wrap: wrap; }
+.code-box b { font-size: 1.5rem; letter-spacing: 4px; color: var(--plum); }
+.friend-hint { opacity: .65; font-size: .9rem; margin: 8px 0 0; }
+.add-row { display: flex; gap: 10px; }
+.text-input { flex: 1; border: 2px solid #e8d9ef; border-radius: 14px; padding: 12px 14px;
+  font-size: 1rem; font-family: inherit; text-transform: uppercase; }
+.count-pill { background: #ffe0ee; border-radius: 999px; padding: 2px 12px; font-size: .85rem; }
+.friend-row { display: flex; align-items: center; gap: 12px; padding: 10px 4px;
+  border-bottom: 1px solid #f0e6f4; }
+.friend-row:last-child { border-bottom: none; }
+.friend-info { flex: 1; display: flex; flex-direction: column; }
+.friend-info .muted { opacity: .6; font-size: .85rem; }
+.friend-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn.small { padding: 8px 12px; font-size: .85rem; }
+.btn.small.ghost { background: #f6f1f7; box-shadow: none; }
+.lb-row { display: flex; align-items: center; gap: 12px; padding: 8px 4px;
+  border-bottom: 1px solid #f0e6f4; }
+.lb-row:last-child { border-bottom: none; }
+.lb-row.you { background: #fff7e6; border-radius: 12px; padding: 8px 12px; }
+.lb-score { margin-left: auto; font-weight: 800; color: var(--plum); }
+.back-link { display: inline-block; margin-bottom: 6px; font-weight: 700; }
+.muted { opacity: .6; }
