@@ -25,7 +25,10 @@ const Game = (() => {
       return Object.assign(blank(), s);
     } catch { return blank(); }
   }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {}
+    if (typeof Cloud !== "undefined") { try { Cloud.pushSoon(); } catch (e) {} }
+  }
   const uid = () => "p" + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36);
 
   /* ---------- decay ---------- */
@@ -251,6 +254,15 @@ const Game = (() => {
     pet.name = name; save(); return true;
   }
   function addGems(n) { S.gems += n; save(); }
+  function addCoins(n) { S.coins = Math.max(0, S.coins + n); save(); return S.coins; }
+  /* Replace the whole local state (used when a newer cloud save arrives). */
+  function importState(obj) {
+    S = Object.assign(blank(), obj || {});
+    if (!Array.isArray(S.pets)) S.pets = [];
+    if (!S.streak || typeof S.streak.count !== "number") S.streak = { count: 0, lastVisit: null };
+    if (!S.cooldowns) S.cooldowns = {};
+    save();
+  }
   function switchPet(id) {
     if (petById(id)) { tickAll(); S.activePetId = id; save(); return true; }
     return false;
@@ -269,6 +281,6 @@ const Game = (() => {
   return {
     state: () => S, save, tickAll, adopt, activePet, petById, speciesOf, displayName, artFor, videoFor,
     mood, doAction, petPet, cooldownLeft, checkStreak, buyCoinItem, buyGemItem, removeHat,
-    renamePet, addGems, switchPet, fmtTime, canAdoptMore, todayStr,
+    renamePet, addGems, addCoins, importState, switchPet, fmtTime, canAdoptMore, todayStr,
   };
 })();
