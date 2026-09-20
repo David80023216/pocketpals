@@ -1,19 +1,20 @@
 /* Pocket Pals — Firebase config.
    ------------------------------------------------------------------
-   STEVE: to turn on sign-in + friends, follow FIREBASE_SETUP.md, then
-   paste your web app's keys below (replace every PASTE_YOUR_* value).
-   Until then the game works exactly as before, 100% offline/local.
+   Live keys for the "pocket-pals" Firebase project (free Spark plan),
+   set up 2026-09-20. Assigned on window so js/cloud.js can read them
+   as window.FIREBASE_CONFIG / window.FIREBASE_ENABLED.
 */
 "use strict";
 
-const FIREBASE_CONFIG = {
-  apiKey: "PASTE_YOUR_API_KEY",
-  authDomain: "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_YOUR_PROJECT_ID",
-  storageBucket: "PASTE_YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "PASTE_YOUR_SENDER_ID",
-  appId: "PASTE_YOUR_APP_ID",
+window.FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDIGj0CEFF_miGEOc01U5cOeTqKIYGbYDc",
+  authDomain: "pocket-pals-afde6.firebaseapp.com",
+  projectId: "pocket-pals-afde6",
+  storageBucket: "pocket-pals-afde6.firebasestorage.app",
+  messagingSenderId: "802262571903",
+  appId: "1:802262571903:web:33107e86473c1d1901d84a"
 };
 
 /* true once real keys are pasted in */
-const FIREBASE_ENABLED = !String(FIREBASE_CONFIG.apiKey).includes("PASTE");
+window.FIREBASE_ENABLED =
+  !String(window.FIREBASE_CONFIG.apiKey || "").includes("PASTE");
