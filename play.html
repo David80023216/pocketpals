@@ -96,7 +96,9 @@ function render(){
   pv.onerror=()=>{ if(pv.getAttribute("src")) pv.removeAttribute("src"); };
   pv.setAttribute("aria-label",pet.name);
   const hat=$("#pet-hat");
-  if(pet.hat){ hat.style.display="block"; hat.textContent=pet.hat; } else hat.style.display="none";
+  const HAT_POS={ "🎉":"hat-party", "🕶️":"hat-shades", "👑":"hat-crown" };
+  if(pet.hat){ hat.style.display="block"; hat.textContent=pet.hat; hat.className="hat "+(HAT_POS[pet.hat]||"hat-party"); }
+  else hat.style.display="none";
   $("#pet-name").textContent=`${pet.name} ${pet.stage==="adult"?"👑":"🍼"}`;
   $("#pet-sub").textContent=`${Game.displayName(pet)} · Level ${pet.level} · ${Game.speciesOf(pet).element} type`;
   const m=Game.mood(pet);
