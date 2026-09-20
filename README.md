@@ -22,6 +22,7 @@ never random draws.
 | `css/styles.css` | Pastel theme |
 | `assets/pets/` | 12 AI-generated pet portraits (6 babies + 6 adults) |
 | `friends.html` | Friends hub: friend codes, gifts, cheers, visits, leaderboard |
+| `missions.html` | Daily missions: 6 rotating quests with coin/gem rewards + all-complete bonus |
 | `js/cloud.js` | Firebase Auth + Firestore: sign-in, cloud saves, friends, inbox |
 | `js/nav-auth.js` | Sign-in button / player chip in the nav bar |
 | `js/firebase-config.js` | Paste your Firebase web keys here (see `FIREBASE_SETUP.md`) |

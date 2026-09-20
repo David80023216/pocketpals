@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Missions — Pocket Pals</title>
+<meta name="description" content="Complete daily missions with your pal and collect coin and gem rewards. New missions every day!">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+  <a class="logo" href="index.html">🐾 Pocket <span>Pals</span></a>
+  <a class="nlink" href="play.html">Play</a>
+  <a class="nlink" href="collection.html">My Pals</a>
+  <a class="nlink" href="shop.html">Shop</a>
+  <a class="nlink" href="store.html">💎 Store</a>
+  <a class="nlink" href="about.html">About</a>
+  <a class="nlink" href="friends.html">👥 Friends</a>
+  <a class="nlink active" href="missions.html">🎯 Missions</a>
+  <span id="auth-slot"></span>
+  <span class="wallet"><span class="pill" id="w-coins">🪙 0</span><span class="pill" id="w-gems">💎 0</span></span>
+</div></nav>
+
+<div class="wrap">
+  <div class="card" style="text-align:center">
+    <h2 id="mission-head">🎯 Daily Missions</h2>
+    <p class="muted">New missions every day. Finish them all for a bonus! 🏆</p>
+  </div>
+
+  <div id="mission-list"></div>
+
+  <div class="card bonus-banner" id="bonus-banner" style="text-align:center"></div>
+
+  <div class="card store-promo" style="text-align:center">
+    <h3>💎 Want bigger rewards?</h3>
+    <p class="muted">Missions earn you a taste of gems — the <b>Gem Store</b> has the full stash: coin packs, boosters and more pals.</p>
+    <a class="btn" href="store.html">Visit the Gem Store 💎</a>
+  </div>
+</div>
+
+<div id="toasts"></div>
+<div id="modal-root"></div>
+<footer><a href="about.html">About</a> · <a href="store.html">Gem Store</a> · Made with 💕 by Pocket Pals</footer>
+
+<script src="js/data.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/cloud.js"></script>
+<script src="js/missions.js"></script>
+<script src="js/game.js"></script>
+<script src="js/nav-auth.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+function toast(msg){ const t=document.createElement("div"); t.className="toast"; t.textContent=msg; $("#toasts").appendChild(t); setTimeout(()=>t.remove(),4200); }
+function refreshWallet(){ const s=Game.state(); $("#w-coins").textContent="🪙 "+s.coins; $("#w-gems").textContent="💎 "+s.gems; }
+
+function render(){
+  const items = Missions.list();
+  const s = Missions.summary();
+  $("#mission-head").textContent = `🎯 Daily Missions — ${s.done}/${s.total} complete`;
+  $("#mission-list").innerHTML = items.map(m => `
+    <div class="card mission${m.done ? " done" : ""}">
+      <div class="m-emoji">${m.emoji}</div>
+      <div class="m-body">
+        <div class="m-text">${m.text}</div>
+        <div class="m-progress"><div class="m-fill" style="width:${Math.round(m.count / m.goal * 100)}%"></div></div>
+        <div class="m-sub">${m.count}/${m.goal} · Reward: <b>${Missions.rewardText(m.reward)}</b></div>
+      </div>
+      <button class="btn small" data-claim="${m.id}" ${(!m.done || m.claimed) ? "disabled" : ""}>${m.claimed ? "Claimed ✓" : "Claim"}</button>
+    </div>`).join("");
+  document.querySelectorAll("[data-claim]").forEach(b => b.onclick = () => {
+    const r = Missions.claim(b.dataset.claim);
+    toast(r.msg); refreshWallet(); render();
+  });
+  const b = Missions.bonus();
+  $("#bonus-banner").innerHTML = Missions.bonusClaimed()
+    ? `<h3>🏆 Daily bonus claimed! Come back tomorrow for fresh missions. 🌅</h3>`
+    : `<h3>🏆 Complete all ${s.total} missions</h3><p class="muted">Bonus reward: <b>${Missions.rewardText(b)}</b></p>`;
+  refreshWallet();
+}
+render();
+</script>
+</body>
+</html>

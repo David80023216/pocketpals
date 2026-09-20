@@ -16,6 +16,7 @@
   <a class="nlink" href="store.html">💎 Store</a>
   <a class="nlink" href="about.html">About</a>
   <a class="nlink active" href="friends.html">👥 Friends</a>
+  <a class="nlink" href="missions.html">🎯 Missions</a>
   <span id="auth-slot"></span>
   <span class="wallet"><span class="pill" id="w-coins">🪙 0</span><span class="pill" id="w-gems">💎 0</span></span>
 </div></nav>
@@ -96,6 +97,7 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/cloud.js"></script>
+<script src="js/missions.js"></script>
 <script src="js/game.js"></script>
 <script src="js/nav-auth.js"></script>
 <script>
@@ -178,11 +180,13 @@ async function loadMain(){
 async function quickGift(uid){
   const r = await Cloud.sendGift(uid);
   toast(r.ok ? `🎁 Gift sent! (-${Cloud.GIFT_COINS} coins)` : r.msg);
+  if(r.ok && window.Missions) Missions.bump("gift");
   refreshWallet();
 }
 async function quickCheer(uid){
   const r = await Cloud.cheerFriend(uid);
   toast(r.ok ? `📣 Cheer sent!` : r.msg);
+  if(r.ok && window.Missions) Missions.bump("cheer");
 }
 
 async function loadVisit(uid){
@@ -213,12 +217,14 @@ async function loadVisit(uid){
     const btn = $("#visit-gift"); btn.disabled = true;
     const r = await Cloud.sendGift(uid);
     toast(r.ok ? `🎁 Gift sent to ${pet.name}!` : r.msg);
+    if(r.ok && window.Missions) Missions.bump("gift");
     btn.disabled = false; refreshWallet();
   };
   $("#visit-cheer").onclick = async () => {
     const btn = $("#visit-cheer"); btn.disabled = true;
     const r = await Cloud.cheerFriend(uid);
     toast(r.ok ? `📣 You cheered ${pet.name} on!` : r.msg);
+    if(r.ok && window.Missions) Missions.bump("cheer");
     btn.disabled = false;
   };
 }

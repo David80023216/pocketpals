@@ -16,6 +16,7 @@
   <a class="nlink" href="store.html">💎 Store</a>
   <a class="nlink" href="about.html">About</a>
   <a class="nlink" href="friends.html">👥 Friends</a>
+  <a class="nlink" href="missions.html">🎯 Missions</a>
   <span id="auth-slot"></span>
   <span class="wallet"><span class="pill" id="w-coins">🪙 0</span><span class="pill" id="w-gems">💎 0</span></span>
 </div></nav>
@@ -29,6 +30,7 @@
 
   <div id="game" style="display:none">
     <div class="streak" id="streak"></div>
+    <div class="mission-teaser" id="mission-teaser"></div>
     <div class="card">
       <div class="pet-stage" id="pet-stage" title="Tap to pet!">
         <div class="speech" id="speech" style="display:none"></div>
@@ -65,6 +67,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/cloud.js"></script>
+<script src="js/missions.js"></script>
 <script src="js/game.js"></script>
 <script src="js/nav-auth.js"></script>
 <script>
@@ -147,6 +150,11 @@ function render(){
   const st=Game.checkStreak();
   const sitter=Date.now()<s.sitterUntil;
   $("#streak").innerHTML=`🔥 Day ${st.count} streak! ${st.awarded?`+${st.awarded} coins today!`:"Come back tomorrow to grow it!"}${sitter?` · 🤝 Pet Sitter active (${Game.fmtTime(s.sitterUntil-Date.now())} left)`:""}`;
+  if(window.Missions){
+    Missions.checkThrive();
+    const ms=Missions.summary();
+    $("#mission-teaser").innerHTML=`<a href="missions.html">🎯 Missions: ${ms.done}/${ms.total} complete${ms.claimable?` — ${ms.claimable} reward${ms.claimable>1?"s":""} ready!`:""}</a>`;
+  }
 }
 
 (function init(){
@@ -191,6 +199,7 @@ function render(){
       stage.appendChild(h); setTimeout(()=>h.remove(),1100);
     }
     if(Game.petPet().ok){
+      if(window.Missions) Missions.bump("pet");
       render();
       if(Date.now()-lastSpeech>9000 && Math.random()<0.6){
         lastSpeech=Date.now();
